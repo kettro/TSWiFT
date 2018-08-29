@@ -23,6 +23,11 @@
    (->cComplex (+ (:x c) r) (:y c)))
   ([c r & more]
    (apply c+ (c+ c r ) more)))
+(defmethod c+ [cComplex java.lang.Double]
+  ([c r]
+   (->cComplex (+ (:x c) r) (:y c)))
+  ([c r & more]
+   (apply c+ (c+ c r ) more)))
 (defmethod c+ [cComplex pComplex]
   ([c p]
    (c+ c (convert p)))
@@ -36,6 +41,11 @@
   ([p1 p2 & more]
    (apply c+ (c+ p2 p2) more)))
 (defmethod c+ [pComplex java.lang.Long]
+  ([p r]
+   (convert (c+ (convert p) r)))
+  ([ p r & more]
+   (apply c+ (c+ p r) more)))
+(defmethod c+ [pComplex java.lang.Double]
   ([p r]
    (convert (c+ (convert p) r)))
   ([ p r & more]
@@ -57,6 +67,11 @@
    (->cComplex (- (:x c) r) (:y c)))
   ([c r & more]
    (apply c- (c- c r ) more)))
+(defmethod c- [cComplex java.lang.Double]
+  ([c r]
+   (->cComplex (- (:x c) r) (:y c)))
+  ([c r & more]
+   (apply c- (c- c r ) more)))
 (defmethod c- [cComplex pComplex]
   ([c p]
    (c- c (convert p)))
@@ -70,6 +85,11 @@
   ([p1 p2 & more]
    (apply c+ (c- p2 p2) more)))
 (defmethod c- [pComplex java.lang.Long]
+  ([p r]
+   (convert (c- (convert p) r)))
+  ([ p r & more]
+   (apply c+ (c- p r) more)))
+(defmethod c- [pComplex java.lang.Double]
   ([p r]
    (convert (c- (convert p) r)))
   ([ p r & more]
@@ -96,6 +116,9 @@
 (defmethod c* [cComplex java.lang.Long]
   ([c r]
    (->cComplex (* (:x c) r) (* (:y c) r))))
+(defmethod c* [cComplex java.lang.Double]
+  ([c r]
+   (->cComplex (* (:x c) r) (* (:y c) r))))
 (defmethod c* [cComplex pComplex]
   ([c p]
    (c* c (convert p)))
@@ -112,13 +135,18 @@
    (->pComplex (* (:r p) r) (:t p)))
   ([p r & more]
    (apply c* (c* p r) more)))
+(defmethod c* [pComplex java.lang.Double]
+  ([p r]
+   (->pComplex (* (:r p) r) (:t p)))
+  ([p r & more]
+   (apply c* (c* p r) more)))
 (defmethod c* [pComplex cComplex]
   ([p c]
    (c* p (convert c)))
   ([p c & more]
    (apply c* (c* p c) more)))
 
-;; Complex Division - basically the same as c*
+;; Complex Division
 (defmethod cdiv [cComplex cComplex]
   ([c1 c2]
    (let [cconj (conjugate c2)
@@ -127,6 +155,12 @@
      (cdiv numer (:x denom))))
   ([c1 c2 & more]
    (apply cdiv (cdiv c1 c2) more)))
+(defmethod cdiv [cComplex java.lang.Double]
+  ([c r]
+   (->cComplex (/ (:x c) r)
+               (/ (:y c) r)))
+  ([c r & more]
+   (apply cdiv (cdiv c r) more)))
 (defmethod cdiv [cComplex java.lang.Long]
   ([c r]
    (->cComplex (/ (:x c) r)
@@ -140,11 +174,16 @@
    (apply cdiv (cdiv c p) more)))
 (defmethod cdiv [pComplex pComplex]
   ([p1 p2]
-   (->pComplex (* (:r p1) (:r p2))
-               (+ (:t p1) (:t p2))))
+   (->pComplex (/ (:r p1) (:r p2))
+               (- (:t p1) (:t p2))))
   ([p1 p2 & more]
    (apply cdiv (cdiv p1 p2) more)))
 (defmethod cdiv [pComplex java.lang.Long]
+  ([p r]
+   (->pComplex (/ (:r p) r) (:t p)))
+  ([p r & more]
+   (apply cdiv (cdiv p r) more)))
+(defmethod cdiv [pComplex java.lang.Double]
   ([p r]
    (->pComplex (/ (:r p) r) (:t p)))
   ([p r & more]
@@ -159,9 +198,15 @@
 (defmethod cpow [cComplex java.lang.Long]
   [c r]
   (convert (cpow (convert c) r)))
+(defmethod cpow [cComplex java.lang.Double]
+  [c r]
+  (convert (cpow (convert c) r)))
 (defmethod cpow [pComplex java.lang.Long]
   [p r]
-  (->pComplex (:r p) (* (:t p) r)))
+  (->pComplex (Math/pow (:r p) r) (* (:t p) r)))
+(defmethod cpow [pComplex java.lang.Double]
+  [p r]
+  (->pComplex (Math/pow (:r p) r) (* (:t p) r)))
 
 ;; Complex Conjugate
 (defmethod conjugate cComplex
