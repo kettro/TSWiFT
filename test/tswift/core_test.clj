@@ -6,25 +6,127 @@
 ;; Samples are given at the bottom
 (declare samples)
 
+(deftest test-swap-range-even
+  (testing "Does the swap-range function properly handle even sized vectors?"
+    (let [subject [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15]
+          target [8 9 10 11 12 13 14 15 0 1 2 3 4 5 6 7]]
+      (is (= target (swap-range (/ (count subject) 2) subject))))))
+(deftest test-swap-range-odd
+  (testing "Does the swap-range function properly handle odd sized vectors?"
+    (let [subject [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14]
+          target [8 9 10 11 12 13 14 0 1 2 3 4 5 6 7]]
+      (is (= target (swap-range 8 subject))))))
+(deftest test-swap-range-twice
+  (testing "Does the swap-range function properly handle double swaps?"
+    (let [subject [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15]]
+      (is (= subject (swap-range 8 (swap-range 8 subject)))))))
+
 (deftest does-it-work?
   (testing "sending samples at it, seeing if it even sorta works"
-    (let [options (->tswift-options 128)]
+    (let [window-size 64
+          iter-count (count samples)
+          options (->tswift-options window-size)]
       (tswift.core/init options)
-      )
-    (time (dotimes [cnt (count samples)]
-      (def cmplx-freq-bins (submit-sample (get samples cnt)))))
-    (prn (str "Ran " (count samples) " samples"))
-    (def mags
-      (loop [cnt 0
-             bins []]
-        (if (< cnt (count cmplx-freq-bins))
-          (recur (inc cnt) (conj bins (:r (get cmplx-freq-bins cnt))))
-          bins)))
-    (dotimes [cnt (/ (count mags) 2)]
-      (prn (str cnt " : " (get mags cnt))))))
-
+      (time (dotimes [cnt iter-count]
+        (when-let [bins (submit-sample (get samples cnt))]
+          (def freq-bins (apply-hann-window bins window-size)))))
+      (def mags
+        (loop [cnt 0
+               bins []]
+          (if (< cnt window-size)
+            (let [bin (get freq-bins cnt)
+                  mag (/ (cmagnitude bin) (double window-size))]
+              (recur (inc cnt) (conj bins mag)))
+            bins)))
+      (dotimes [cnt (count mags)]
+        (prn (str cnt " : " (get mags cnt)))))))
 
 (def samples [
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
+              0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
+              9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
               0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0
               9 8 7 6 5 4 3 2 1 0 0 1 2 3 4 5 6 7 8 9
               0 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 0

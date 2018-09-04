@@ -23,6 +23,12 @@ The divisions of the frequency bins are window-dependent. The frequencies
 available are between 0 and the Nyquist frequency (1/2 of the sampling frequency).
 The bins will be as wide as (Nyquist / window-size).
 
+The values in the bins that are returned will be scaled, to a gain of 4\*window-size.
+this can be taken off of the resultant bins by the user for whichever bins are desired
+to be scaled. The scaling by the window-size is due to the FFT, while the scaling of
+4 is due to the fast-Hann window applied. This latter scaling may be left applied
+for an output that is approximately of the same magnitude as the un-windowed.
+
 ## Algorithm
 The TSWiFT is based on the work by L Richardson of Carnegie Mellon University,
 who developed a k-dimension version. This implementation is only a 1D-version.
@@ -60,12 +66,24 @@ The essence of the TSWiFT algorithm  comes from the savings that can be realized
 repeated calculations, where prior nodes can be reused to provide information about
 future nodes. Additionally, if an FFT is not required at every sample point,
 even further savings can be realized, by omitting certain calculations of the
-intermediary sample-points.
+intermediary sample-points. These latter savings have yet to be implemented, however.
+
+The windowing is applied at the end of the TSWiFT algorithm, to the output bins,
+where each bin is windowed in the Frequency Domain. A Hann window was chosen for
+simplicity, but another could be implemented in its stead.
+
+The Hann window was implemented by exploiting the frequency-domain representation
+of the windowing, and accepting a 4x gain. The windowing can be selectively applied
+to whichever samples' output is desired, and can (in the future) be applied to bins
+selectively, further improving effective throughput.
+The formula used for the Frequency-domain Hann window is as follows:
+
+X'[m] = (2X[m] - X[m-1] -X[m+1])
 
 ## TODO
-* Windowing - Frequency-domain convolution windowing, to reduce frequency smearing around the edges
 * Instance-based - allow the use to provide the structures on a per-instance basis
 * Pure - Remove side effects
+* Intermediate skipping
 
 ## License
 MIT Public License (see LICENSE)
