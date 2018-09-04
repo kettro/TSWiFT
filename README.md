@@ -12,8 +12,9 @@ different idiom.
 Initialize the module using `(init options)`, and then provide new samples
 to the TSWiFT using `(submit-sample sample)`. This will return either `nil`,
 if the module has not yet "warmed up" (Takes 1 full window to do so), or
-a `pComplex` Polar Complex number. The magntiude is retievable at the `:r`
-key, and the phase at the `:t` key.
+a `cComplex` Cartesian Complex number. The magntidue can be computed using
+the `cmagnitude` method, or by converting the value to a Polar value,
+using the `cconvert` method.
 
 The frequency bins returned by the algorithm will be ordered by frequencies:
 positive first, and then negative; the first N/2 bins are the positive bins,
@@ -28,6 +29,10 @@ this can be taken off of the resultant bins by the user for whichever bins are d
 to be scaled. The scaling by the window-size is due to the FFT, while the scaling of
 4 is due to the fast-Hann window applied. This latter scaling may be left applied
 for an output that is approximately of the same magnitude as the un-windowed.
+
+The windowing can be applied by using the `apply-hann-window` method. It should
+be noted that the windowing does have a large performance penalty, incurred
+mainly by the required reordering of the bins.
 
 ## Algorithm
 The TSWiFT is based on the work by L Richardson of Carnegie Mellon University,
@@ -84,6 +89,7 @@ X'[m] = (2X[m] - X[m-1] -X[m+1])
 * Instance-based - allow the use to provide the structures on a per-instance basis
 * Pure - Remove side effects
 * Intermediate skipping
+* Improve windowing performance
 
 ## License
 MIT Public License (see LICENSE)
