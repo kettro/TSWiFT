@@ -206,6 +206,16 @@
    (->cComplex 0.0 0.0))
   ([n c & more]
    (->cComplex 0.0 0.0)))
+(defmethod c* [nil java.lang.Long]
+  ([n r]
+   (->cComplex 0.0 0.0))
+  ([n r & more]
+   (->cComplex 0.0 0.0)))
+(defmethod c* [nil java.lang.Double]
+  ([n r]
+   (->cComplex 0.0 0.0))
+  ([n r & more]
+   (->cComplex 0.0 0.0)))
 
 ;; Complex Division
 (defmethod cdiv [cComplex cComplex]
